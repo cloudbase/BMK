@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    cdi.kubevirt.io: cdi-uploadproxy
+  name: cdi-uploadproxy-nodeport
+  namespace: cdi
+spec:
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 31001
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    cdi.kubevirt.io: cdi-uploadproxy
+  sessionAffinity: None
+  type: NodePort

@@ -1,0 +1,20 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workload-apps
+spec:
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    namespace: argo-cd
+    server: https://kubernetes.default.svc
+  project: workload
+  source:
+    repoURL: 'https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git'
+    path: applications/workload
+    targetRevision: HEAD

@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster.name }}
+spec:
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  destination:
+    namespace: {{ .Values.cluster.namespace }}
+    server: https://10.100.3.140:6443
+  project: workload
+  source:
+    chart: rook-ceph-cluster
+    repoURL: https://charts.rook.io/release
+    targetRevision: {{ .Values.cluster.version }}
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |-
+        {{- toYaml .Values.cluster.values | nindent 8 }}

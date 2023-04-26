@@ -1,0 +1,14 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cdi-manifests
+spec:
+  destination:
+    namespace: cdi
+    server: https://10.100.3.140:6443
+  project: default
+  source:
+    path: config/workload/cdi
+    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
+    targetRevision: HEAD

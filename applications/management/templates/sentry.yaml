@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.sentry.name }}
+spec:
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  destination:
+    namespace: {{ .Values.sentry.namespace }}
+    server: https://kubernetes.default.svc
+  project: management
+  source:
+    chart: sentry
+    repoURL: https://sentry-kubernetes.github.io/charts
+    targetRevision: {{ .Values.sentry.version }}
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |-
+        {{- toYaml .Values.sentry.values | nindent 8 }}

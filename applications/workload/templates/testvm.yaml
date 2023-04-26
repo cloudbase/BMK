@@ -1,0 +1,18 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: testvm
+spec:
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  destination:
+    namespace: default
+    server: https://10.100.3.140:6443
+  project: workload
+  source:
+    path: config/workload/testvm
+    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
+    targetRevision: HEAD

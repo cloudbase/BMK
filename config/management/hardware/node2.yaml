@@ -1,0 +1,47 @@
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Hardware
+metadata:
+  name: kub-poc-worker
+  namespace: tink-system
+spec:
+  disks:
+    - device: /dev/sda
+  metadata:
+    facility:
+      facility_code: onprem
+    instance:
+      hostname: "kub-poc-worker"
+      id: "50:6b:4b:23:15:5c"
+      operating_system:
+        distro: "ubuntu"
+        os_slug: "ubuntu_20_04"
+        version: "20.04"
+  interfaces:
+    - dhcp:
+        arch: x86_64
+        hostname: kub-poc-worker
+        ip:
+          address: 10.100.3.52
+          gateway: 10.100.3.254
+          netmask: 255.255.255.0
+        lease_time: 86400
+        mac: 50:6b:4b:23:15:5c
+        name_servers:
+          - 208.67.220.220
+          - 208.67.222.222
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true
+    - dhcp:
+        arch: x86_64
+        hostname: kub-poc-worker
+        ip:
+          address: 10.100.3.62
+          netmask: 255.255.255.0
+        lease_time: 86400
+        mac: 50:6b:4b:23:15:5d
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true

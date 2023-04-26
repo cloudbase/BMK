@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: win2k22-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 35Gi
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: win2k22-vm
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: win2k22-vm
+    spec:
+      domain:
+        cpu:
+          cores: 4
+        devices:
+          disks:
+          - bootOrder: 1
+            disk:
+              bus: virtio
+            name: vmdisk
+          - bootOrder: 2
+            disk:
+              bus: virtio
+            name: vmstorage
+        machine:
+          type: q35
+        resources:
+          requests:
+            memory: 12G
+      volumes:
+      - name: vmdisk
+        persistentVolumeClaim:
+          claimName: win2k22-qcow2
+      - name: vmstorage
+        persistentVolumeClaim:
+          claimName: win2k22-storage
+      - cloudInitConfigDrive:
+          userData: |
+            #ps1
+            net user Administrator StrongPassw0rd
+        name: cloudinitdisk

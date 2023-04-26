@@ -1,0 +1,13 @@
+apiVersion: bmc.tinkerbell.org/v1alpha1
+kind: Machine
+metadata:
+  name: kub-poc-worker
+  namespace: tink-system
+spec:
+  connection:
+    host: 172.21.40.11
+    port: 623
+    authSecretRef:
+      name: bm-auth
+      namespace: tink-system
+    insecureTLS: false

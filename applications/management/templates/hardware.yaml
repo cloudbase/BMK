@@ -1,0 +1,18 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hardware
+spec:
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  destination:
+    namespace: tink-system
+    server: https://kubernetes.default.svc
+  project: tinkerbell
+  source:
+    path: config/management/hardware
+    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
+    targetRevision: HEAD

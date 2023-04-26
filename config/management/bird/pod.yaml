@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    component: bird
+    tier: control-plane
+  name: bird
+  namespace: bird
+spec:
+  containers:
+    - image: pierky/bird:2.0.8
+      imagePullPolicy: IfNotPresent
+      name: bird
+      resources: {}
+      volumeMounts:
+        - mountPath: /etc/bird
+          name: bird-config
+      securityContext:
+       privileged: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+    - configMap:
+        name: bird-config
+        items:
+          - key: bird.conf
+            path: bird.conf
+      name: bird-config

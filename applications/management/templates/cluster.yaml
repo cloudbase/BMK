@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workload-cluster
+spec:
+  destination:
+    namespace: tink-system
+    server: https://kubernetes.default.svc
+  project: tinkerbell
+  source:
+    path: config/management/cluster
+    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
+    targetRevision: HEAD
+  ignoreDifferences:
+  - group: infrastructure.cluster.x-k8s.io
+    kind: TinkerbellCluster
+    jsonPointers:
+    - /spec/imageLookupBaseRegistry

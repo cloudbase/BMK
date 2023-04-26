@@ -1,0 +1,16 @@
+apiVersion: bmc.tinkerbell.org/v1alpha1
+kind: Job
+metadata:
+  name: job-power-reset-node1
+  namespace: tink-system
+spec:
+  machineRef:
+    name: kub-poc-cp
+    namespace: tink-system
+  tasks:
+    - powerAction: "off"
+    - oneTimeBootDeviceAction:
+        device:
+          - "pxe"
+        efiBoot: true
+    - powerAction: "on"

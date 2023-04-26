@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.wordpress.name }}
+spec:
+  destination:
+    namespace: {{ .Values.wordpress.namespace }}
+    server: https://10.100.3.140:6443
+  project: workload
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  source:
+    chart: wordpress
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: {{ .Values.wordpress.version }}
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |-
+        {{- toYaml .Values.wordpress.values | nindent 8 }}

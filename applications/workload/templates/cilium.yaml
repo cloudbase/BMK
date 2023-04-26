@@ -1,0 +1,31 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cilium.name }}
+spec:
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  destination:
+    namespace: {{ .Values.cilium.namespace }}
+    server: https://10.100.3.140:6443
+  project: workload
+  source:
+    chart: cilium
+    repoURL: https://helm.cilium.io/
+    targetRevision: {{ .Values.cilium.version }}
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |-
+        {{- toYaml .Values.cilium.values | nindent 8 }}
+  ignoreDifferences:
+    - kind: Secret
+      namespace: {{ .Values.cilium.namespace }}
+      jsonPointers:
+        - /data/ca.crt
+        - /data/ca.key
+        - /data/tls.crt
+        - /data/tls.key
