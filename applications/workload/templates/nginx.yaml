@@ -2,17 +2,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kubevirt-vncproxy
+  name: nginx
 spec:
-  syncPolicy:
-    syncOptions:
-      - ServerSideApply=true
-      - CreateNamespace=true
   destination:
-    namespace: kube-system
+    namespace: nginx
     server: https://10.8.10.151:6443
   project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
   source:
-    path: config/workload/kubevirt-vnc
+    path: config/workload/nginx
     repoURL: git@github.com:ader1990/u5n-k8s-docs.git
     targetRevision: argocd-arm64-altra-flatcar-amd64hybrid

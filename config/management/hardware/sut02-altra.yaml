@@ -1,0 +1,35 @@
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Hardware
+metadata:
+  name: sut02-altra
+  labels:
+    rack: arm64
+spec:
+  disks:
+    - device: /dev/nvme0n0
+  metadata:
+    facility:
+      facility_code: sandbox
+    instance:
+      hostname: "sut02-altra"
+      id: "e4:3d:1a:96:7d:c6"
+      operating_system:
+        distro: "ubuntu"
+        os_slug: "ubuntu_20_04"
+        version: "20.04"
+  interfaces:
+    - dhcp:
+        arch: aarch64
+        hostname: sut02-altra
+        ip:
+          address: 10.8.10.42
+          gateway: 10.8.10.1
+          netmask: 255.255.255.0
+        lease_time: 86400
+        mac: "e4:3d:1a:96:7d:c6"
+        name_servers:
+          - 8.8.8.8
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true

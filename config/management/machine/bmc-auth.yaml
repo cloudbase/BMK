@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: bm-auth
-  namespace: tink-system
-data:
-  username: VVNFUklE
-  password: c2VjcmV0cGFzc3dvcmQK
-type: kubernetes.io/basic-auth

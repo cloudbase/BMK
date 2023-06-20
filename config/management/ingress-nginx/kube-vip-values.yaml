@@ -1,0 +1,37 @@
+image:
+  repository: ghcr.io/kube-vip/kube-vip
+  pullPolicy: IfNotPresent
+  tag: v0.5.11
+config:
+  address: ''
+env:
+  vip_interface: enp1s0f0np0
+  vip_arp: 'true'
+  lb_enable: 'true'
+  lb_port: '6443'
+  vip_cidr: '32'
+  cp_enable: 'false'
+  svc_enable: 'true'
+  vip_leaderelection: 'false'
+envFrom: []
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ''
+podAnnotations: {}
+podSecurityContext: {}
+securityContext:
+  capabilities:
+    add:
+      - NET_ADMIN
+      - NET_RAW
+resources: {}
+nodeSelector: {}
+tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
+    operator: Exists
+affinity: {}

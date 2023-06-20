@@ -13,8 +13,8 @@ spec:
   destination:
     namespace: argo-cd
     server: https://kubernetes.default.svc
-  project: workload
+  project: default
   source:
-    repoURL: 'https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git'
+    repoURL: 'git@github.com:ader1990/u5n-k8s-docs.git'
     path: applications/workload
-    targetRevision: HEAD
+    targetRevision: argocd-arm64-altra-flatcar-amd64hybrid

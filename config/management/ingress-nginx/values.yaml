@@ -1,0 +1,11 @@
+controller:
+  service:
+    loadBalancerIP: 10.8.10.133
+    lbClass: kube-vip.io/kube-vip-class
+  extraArgs:
+    enable-ssl-passthrough: 'true'
+  config:
+    use-forwarded-headers: 'true'
+    ssl-redirect: 'true'
+    force-ssl-redirect: 'true'
+    ssl-passthrough: 'true'

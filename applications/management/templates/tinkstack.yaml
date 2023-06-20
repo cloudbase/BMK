@@ -11,7 +11,7 @@ spec:
   destination:
     namespace: {{ .Values.tinkstack.namespace }}
     server: https://kubernetes.default.svc
-  project: management
+  project: default
   source:
     chart: stack
     repoURL: ghcr.io/tinkerbell/charts

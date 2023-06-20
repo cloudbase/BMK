@@ -6701,14 +6701,14 @@ spec:
         - virt-operator
         env:
         - name: VIRT_OPERATOR_IMAGE
-          value: quay.io/kubevirt/virt-operator:v0.59.0
+          value: quay.io/kubevirt/virt-operator:20230206_4834858d8-arm64
         - name: WATCH_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.annotations['olm.targetNamespaces']
         - name: KUBEVIRT_VERSION
-          value: v0.59.0
-        image: quay.io/kubevirt/virt-operator:v0.59.0
+          value: 20230206_4834858d8-arm64
+        image: quay.io/kubevirt/virt-operator:20230206_4834858d8-arm64
         imagePullPolicy: IfNotPresent
         name: virt-operator
         ports:

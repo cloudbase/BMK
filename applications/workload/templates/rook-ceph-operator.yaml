@@ -10,8 +10,8 @@ spec:
       - CreateNamespace=true
   destination:
     namespace: {{ .Values.operator.namespace }}
-    server: https://10.100.3.140:6443
-  project: workload
+    server: https://10.8.10.151:6443
+  project: default
   source:
     chart: rook-ceph
     repoURL: https://charts.rook.io/release

@@ -1,0 +1,35 @@
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Hardware
+metadata:
+  name: vm01-proxmox
+  labels:
+    rack: amd64
+spec:
+  disks:
+    - device: /dev/vda1
+  metadata:
+    facility:
+      facility_code: sandbox
+    instance:
+      hostname: "vm01-proxmox"
+      id: "9a:ae:a2:a1:98:69"
+      operating_system:
+        distro: "ubuntu"
+        os_slug: "ubuntu_20_04"
+        version: "20.04"
+  interfaces:
+    - dhcp:
+        arch: x86_64
+        hostname: vm01-proxmox
+        ip:
+          address: 10.8.10.43
+          gateway: 10.8.10.1
+          netmask: 255.255.255.0
+        lease_time: 86400
+        mac: "9a:ae:a2:a1:98:69"
+        name_servers:
+          - 8.8.8.8
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true

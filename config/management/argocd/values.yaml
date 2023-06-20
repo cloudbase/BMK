@@ -1,0 +1,31 @@
+global:
+  hostAliases:
+    - ip: 10.8.10.133
+      hostnames:
+        - argo-cd.mgmt.kub-poc.local
+        - grafana.mgmt.kub-poc.local
+        - prometheus.mgmt.kub-poc.local
+server:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+      nginx.ingress.kubernetes.io/ssl-passthrough: 'true'
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      cert-manager.io/issuer: kub-poc-issuer
+    hosts:
+      - argo-cd.mgmt.kub-poc.local
+    tls:
+      - hosts:
+          - argo-cd.mgmt.kub-poc.local
+        secretName: argocd-server-tls
+    https: true
+configs:
+  params:
+    server.insecure: 'false'
+  cm:
+    ui.cssurl: https://marius.oprin.ro/cbsl-branding/CBSL-style.css
+    url: https://argo-cd.mgmt.kub-poc.local
+  notifications:
+    argocdUrl: https://argo-cd.mgmt.kub-poc.local

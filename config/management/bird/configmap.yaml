@@ -11,7 +11,7 @@ data:
         */
 
         define my_asn=65000;
-        define my_addr=10.100.3.50;
+        define my_addr=10.8.10.2;
 
         # Router ID in IPv4 format
         router id my_addr;
@@ -71,14 +71,9 @@ data:
         }
 
         protocol bgp uplink0 from TEMPLATE_BGP {
-                neighbor 10.100.3.51 as 65200;
+                neighbor 10.8.10.41 as 65200;
         }
+
         protocol bgp uplink1 from TEMPLATE_BGP {
-                neighbor 10.100.3.52 as 65200;
-        }
-        protocol bgp uplink2 from TEMPLATE_BGP {
-                neighbor 10.100.3.61 as 65200;
-        }
-        protocol bgp uplink3 from TEMPLATE_BGP {
-                neighbor 10.100.3.62 as 65200;
+                neighbor 10.8.10.42 as 65200;
         }

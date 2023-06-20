@@ -10,9 +10,9 @@ spec:
       - CreateNamespace=true
   destination:
     namespace: kube-system
-    server: https://10.100.3.140:6443
-  project: workload
+    server: https://10.8.10.151:6443
+  project: default
   source:
     path: config/workload/cilium
-    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
-    targetRevision: HEAD
+    repoURL: git@github.com:ader1990/u5n-k8s-docs.git
+    targetRevision: argocd-arm64-altra-flatcar-amd64hybrid

@@ -1,0 +1,305 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: kub-poc-control-plane
+  namespace: tink-system
+spec:
+  kubeadmConfigSpec:
+    format: ignition
+    clusterConfiguration: {}
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          provider-id: PROVIDER_ID
+    joinConfiguration:
+      nodeRegistration:
+        ignorePreflightErrors:
+          - DirAvailable--etc-kubernetes-manifests
+        kubeletExtraArgs:
+          provider-id: PROVIDER_ID
+    preKubeadmCommands:
+      - until ping cloudbase.it -c 2 -t 10; do sleep 1; done && mkdir -p /etc/kubernetes/manifests && ctr images pull ghcr.io/kube-vip/kube-vip:v0.5.11 && ctr run --rm --net-host ghcr.io/kube-vip/kube-vip:v0.5.11 vip /kube-vip manifest pod --arp --interface $(ip -4 -j route list default | jq -r .[0].dev) --address 10.8.10.151 --controlplane --leaderElection > /etc/kubernetes/manifests/kube-vip.yaml
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: TinkerbellMachineTemplate
+      name: kub-poc-control-plane
+  replicas: 1
+  version: v1.27.2
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: TinkerbellMachineTemplate
+metadata:
+  name: kub-poc-control-plane
+  namespace: tink-system
+spec:
+  template:
+    spec:
+      hardwareAffinity:
+        preferred:
+          - weight: 100
+            hardwareAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  rack: arm64
+      templateOverride: |
+        version: "0.1"
+        name: kub-poc-control-plane-flatcar-arm64
+        global_timeout: 6000
+        tasks:
+          - name: "kub-poc-control-plane-flatcar"
+            worker: "{{.device_1}}"
+            volumes:
+              - /dev:/dev
+              - /dev/console:/dev/console
+              - /lib/firmware:/lib/firmware:ro
+              - /run:/run
+            actions:
+              - name: "stream-image"
+                image: quay.io/tinkerbell-actions/oci2disk:v1.0.0
+                timeout: 600
+                environment:
+                  IMG_URL: tinkerbell.azurecr.io/cluster-api-provider-tinkerbell-flatcar/flatcar-stable360700arm64:v1.27.2.gz
+                  DEST_DISK: /dev/nvme0n1
+                  COMPRESSED: true
+              - name: "change-kernel-configuration"
+                image: quay.io/tinkerbell-actions/writefile:v1.0.0
+                timeout: 90
+                environment:
+                  DEST_DISK: /dev/nvme0n1p6
+                  FS_TYPE: btrfs
+                  DEST_PATH: /grub.cfg
+                  UID: 0
+                  GID: 0
+                  MODE: 0777
+                  DIRMODE: 0755
+                  CONTENTS: |
+                    set linux_append="$linux_append flatcar.autologin=tty1 flatcar.config.url=http://10.8.10.130:50061/2009-04-04/user-data"
+              - name: "reboot"
+                image: tinkerbell.azurecr.io/tinkerbell/reboot:1.0
+                timeout: 90
+                volumes:
+                  - /worker:/worker
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: kub-poc
+  namespace: tink-system
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 192.168.0.0/16
+    services:
+      cidrBlocks:
+        - 172.26.0.0/16
+  controlPlaneEndpoint:
+    host: 10.8.10.151
+    port: 6443
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: kub-poc-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: TinkerbellCluster
+    name: kub-poc
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: TinkerbellCluster
+metadata:
+  name: kub-poc
+  namespace: tink-system
+spec:
+  imageLookupBaseRegistry: ""
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: kub-poc
+    pool: worker-arm64
+  name: kub-poc-worker-arm64
+  namespace: tink-system
+spec:
+  clusterName: kub-poc
+  replicas: 1
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: kub-poc
+      pool: worker-arm64
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: kub-poc
+        pool: worker-arm64
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: kub-poc-worker
+      clusterName: kub-poc
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: TinkerbellMachineTemplate
+        name: kub-poc-worker-arm64
+      version: v1.27.2
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: TinkerbellMachineTemplate
+metadata:
+  name: kub-poc-worker-arm64
+  namespace: tink-system
+spec:
+  template:
+    spec:
+      hardwareAffinity:
+        preferred:
+          - weight: 100
+            hardwareAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  rack: arm64
+      templateOverride: |
+        version: "0.1"
+        name: kub-poc-worker-flatcar-arm64
+        global_timeout: 6000
+        tasks:
+          - name: "kub-poc-worker-flatcar"
+            worker: "{{.device_1}}"
+            volumes:
+              - /dev:/dev
+              - /dev/console:/dev/console
+              - /lib/firmware:/lib/firmware:ro
+              - /run:/run
+            actions:
+              - name: "stream-image"
+                image: quay.io/tinkerbell-actions/oci2disk:v1.0.0
+                timeout: 600
+                environment:
+                  IMG_URL: tinkerbell.azurecr.io/cluster-api-provider-tinkerbell-flatcar/flatcar-stable360700arm64:v1.27.2.gz
+                  DEST_DISK: /dev/nvme0n1
+                  COMPRESSED: true
+              - name: "change-kernel-configuration"
+                image: quay.io/tinkerbell-actions/writefile:v1.0.0
+                timeout: 90
+                environment:
+                  DEST_DISK: /dev/nvme0n1p6
+                  FS_TYPE: btrfs
+                  DEST_PATH: /grub.cfg
+                  UID: 0
+                  GID: 0
+                  MODE: 0777
+                  DIRMODE: 0755
+                  CONTENTS: |
+                    set linux_append="$linux_append flatcar.autologin=tty1 flatcar.config.url=http://10.8.10.130:50061/2009-04-04/user-data"
+              - name: "reboot"
+                image: tinkerbell.azurecr.io/tinkerbell/reboot:1.0
+                timeout: 90
+                volumes:
+                  - /worker:/worker
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: kub-poc
+    pool: worker-amd64
+  name: kub-poc-worker-amd64
+  namespace: tink-system
+spec:
+  clusterName: kub-poc
+  replicas: 1
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: kub-poc
+      pool: worker-amd64
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: kub-poc
+        pool: worker-amd64
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: kub-poc-worker
+      clusterName: kub-poc
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: TinkerbellMachineTemplate
+        name: kub-poc-worker-amd64
+      version: v1.27.2
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: TinkerbellMachineTemplate
+metadata:
+  name: kub-poc-worker-amd64
+  namespace: tink-system
+spec:
+  template:
+    spec:
+      hardwareAffinity:
+        preferred:
+          - weight: 100
+            hardwareAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  rack: amd64
+      templateOverride: |
+        version: "0.1"
+        name: kub-poc-worker-flatcar-amd64
+        global_timeout: 6000
+        tasks:
+          - name: "kub-poc-worker-flatcar"
+            worker: "{{.device_1}}"
+            volumes:
+              - /dev:/dev
+              - /dev/console:/dev/console
+              - /lib/firmware:/lib/firmware:ro
+              - /run:/run
+            actions:
+              - name: "stream-image"
+                image: quay.io/tinkerbell-actions/oci2disk:v1.0.0
+                timeout: 600
+                environment:
+                  IMG_URL: tinkerbell.azurecr.io/cluster-api-provider-tinkerbell-flatcar/flatcar-stable351022:v1.27.2.gz
+                  DEST_DISK: /dev/sda
+                  COMPRESSED: true
+              - name: "change-kernel-configuration"
+                image: quay.io/tinkerbell-actions/writefile:v1.0.0
+                timeout: 90
+                environment:
+                  DEST_DISK: /dev/sda6
+                  FS_TYPE: btrfs
+                  DEST_PATH: /grub.cfg
+                  UID: 0
+                  GID: 0
+                  MODE: 0777
+                  DIRMODE: 0755
+                  CONTENTS: |
+                    set linux_append="$linux_append flatcar.autologin=tty1 flatcar.config.url=http://10.8.10.130:50061/2009-04-04/user-data"
+              - name: "reboot"
+                image: tinkerbell.azurecr.io/tinkerbell/reboot:1.0
+                timeout: 90
+                volumes:
+                  - /worker:/worker
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: kub-poc-worker
+  namespace: tink-system
+spec:
+  template:
+    spec:
+      format: ignition
+      preKubeadmCommands:
+        - until ping cloudbase.it -c 2 -t 10; do sleep 1; done && (systemctl stop containerd || true) && systemctl start containerd
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            provider-id: PROVIDER_ID

@@ -11,8 +11,8 @@ spec:
   destination:
     namespace: bird
     server: https://kubernetes.default.svc
-  project: management
+  project: default
   source:
     path: config/management/bird
-    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
-    targetRevision: HEAD
+    repoURL: git@github.com:ader1990/u5n-k8s-docs.git
+    targetRevision: argocd-arm64-altra-flatcar-amd64hybrid

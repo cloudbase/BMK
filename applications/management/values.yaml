@@ -1,105 +1,39 @@
-# Argo CD helm chart
 argocd:
   name: argo-cd
   namespace: argo-cd
-  version: 5.26.0
+  version: 5.34.3
   values:
     global:
       hostAliases:
-      - ip: 10.100.3.133
-        hostnames:
-        - git.mgmt.kub-poc.local
-        - sentry.mgmt.kub-poc.local
-        - argo-cd.mgmt.kub-poc.local
-        - grafana.mgmt.kub-poc.local
-        - prometheus.mgmt.kub-poc.local
+        - ip: 10.8.10.133
+          hostnames:
+            - argo-cd.mgmt.kub-poc.local
+            - grafana.mgmt.kub-poc.local
+            - prometheus.mgmt.kub-poc.local
     server:
       ingress:
         enabled: true
         annotations:
           kubernetes.io/ingress.class: nginx
-          nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-          nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-          cert-manager.io/issuer: "kub-poc-issuer"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+          nginx.ingress.kubernetes.io/ssl-passthrough: 'true'
+          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          cert-manager.io/issuer: kub-poc-issuer
         hosts:
           - argo-cd.mgmt.kub-poc.local
         tls:
-        - hosts:
-            - argo-cd.mgmt.kub-poc.local
-          secretName: argo-cd-server-tls
+          - hosts:
+              - argo-cd.mgmt.kub-poc.local
+            secretName: argo-cd-server-tls
         https: true
     configs:
       params:
-        server.insecure: "false"
+        server.insecure: 'false'
       cm:
+        ui.cssurl: https://marius.oprin.ro/cbsl-branding/CBSL-style.css
         url: https://argo-cd.mgmt.kub-poc.local
       notifications:
         argocdUrl: https://argo-cd.mgmt.kub-poc.local
-
-# Gitea helm chart (git server/ ssh outbound is not working to use public github.com)
-gitea:
-  name: gitea
-  namespace: git
-  version: 7.0.4
-  values:
-    gitea:
-      config:
-        server:
-          SSH_DOMAIN: git.mgmt.kub-poc.local
-          ROOT_URL: https://git.mgmt.kub-poc.local
-          DOMAIN: git.mgmt.kub-poc.local
-    ingress:
-      enabled: true
-      annotations:
-        cert-manager.io/issuer: "kub-poc-issuer"
-        kubernetes.io/ingress.class: nginx
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/ssl-passthrough: "false"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      hosts:
-        - host: git.mgmt.kub-poc.local
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - hosts:
-            - git.mgmt.kub-poc.local
-          secretName: git-tls
-
-# Sentry helm chart
-sentry:
-  name: sentry
-  namespace: monitoring
-  version: 17.9.1
-  values:
-    ingress:
-      enabled: true
-      regexPathStyle: nginx
-      annotations:
-        kubernetes.io/ingress.class: nginx
-        nginx.ingress.kubernetes.io/use-regex: "true"
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/ssl-passthrough: "false"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      hostname: sentry.mgmt.kub-poc.local
-      tls:
-      - secretName: sentry-tls
-        hosts:
-          - sentry.mgmt.kub-poc.local
-
-# Sentry-kunernetes helm chart (sentry integration with kubernetes)
-sentrykubmgmt:
-  name: sentry-kubernetes
-  namespace: monitoring
-  version: 0.3.2
-  values:
-    sentry:
-      dsn: "https://8b71683fba094609b488c0671d620441@sentry.mgmt.kub-poc.local/2"
-  image:
-      repository: oprinmarius/sentry-kubernetes
-
-# Prom-operator chart
 prometheus:
   name: prometheus
   namespace: monitoring
@@ -110,31 +44,29 @@ prometheus:
         enabled: true
         annotations:
           kubernetes.io/ingress.class: nginx
-          nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-          nginx.ingress.kubernetes.io/ssl-passthrough: "false"
-          nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+          nginx.ingress.kubernetes.io/ssl-passthrough: 'false'
+          nginx.ingress.kubernetes.io/backend-protocol: HTTP
         hosts:
           - grafana.mgmt.kub-poc.local
         tls:
-        - secretName: grafana-tls
-          hosts:
-            - grafana.mgmt.kub-poc.local
+          - secretName: grafana-tls
+            hosts:
+              - grafana.mgmt.kub-poc.local
     prometheus:
       ingress:
         enabled: true
         annotations:
           kubernetes.io/ingress.class: nginx
-          nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-          nginx.ingress.kubernetes.io/ssl-passthrough: "false"
-          nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+          nginx.ingress.kubernetes.io/ssl-passthrough: 'false'
+          nginx.ingress.kubernetes.io/backend-protocol: HTTP
         hosts:
           - prometheus.mgmt.kub-poc.local
         tls:
-        - secretName: prometheus-tls
-          hosts:
-            - prometheus.mgmt.kub-poc.local
-
-# ingress-nginx chart
+          - secretName: prometheus-tls
+            hosts:
+              - prometheus.mgmt.kub-poc.local
 ingress:
   name: ingress-nginx
   namespace: ingress-nginx
@@ -142,16 +74,14 @@ ingress:
   values:
     controller:
       service:
-        loadBalancerIP: 10.100.3.133
+        loadBalancerIP: 10.8.10.133
       extraArgs:
-        enable-ssl-passthrough: "true"
+        enable-ssl-passthrough: 'true'
       config:
-        use-forwarded-headers: "true"
-        ssl-redirect: "true"
-        force-ssl-redirect: "true"
-        ssl-passthrough: "true"
-
-# Tinkerbell stack helm chart
+        use-forwarded-headers: 'true'
+        ssl-redirect: 'true'
+        force-ssl-redirect: 'true'
+        ssl-passthrough: 'true'
 tinkstack:
   name: tink-stack
   namespace: tink-system
@@ -159,61 +89,63 @@ tinkstack:
   values:
     boots:
       env:
-      - name: DATA_MODEL_VERSION
-        value: kubernetes
-      - name: FACILITY_CODE
-        value: lab1
-      - name: HTTP_BIND
-        value: :80
-      - name: MIRROR_BASE_URL
-        value: http://10.100.3.130:8080
-      - name: BOOTS_OSIE_PATH_OVERRIDE
-        value: http://10.100.3.130:8080
-      - name: PUBLIC_IP
-        value: 10.100.3.130
-      - name: PUBLIC_SYSLOG_FQDN
-        value: 10.100.3.130
-      - name: SYSLOG_BIND
-        value: :514
-      - name: TINKERBELL_GRPC_AUTHORITY
-        value: 10.100.3.130:42113
-      - name: TINKERBELL_TLS
-        value: "false"
-      - name: BOOTS_LOG_LEVEL
-        value: debug
-      - name: BOOTS_EXTRA_KERNEL_ARGS
-        value: tink_worker_image=tinkerbell.azurecr.io/tink-worker:v0.8.0
+        - name: DATA_MODEL_VERSION
+          value: kubernetes
+        - name: FACILITY_CODE
+          value: lab1
+        - name: HTTP_BIND
+          value: :80
+        - name: BOOTS_OSIE_URL
+          value: http://10.8.10.130:8080
+        - name: PUBLIC_IP
+          value: 10.8.10.130
+        - name: PUBLIC_SYSLOG_FQDN
+          value: 10.8.10.130
+        - name: SYSLOG_BIND
+          value: :514
+        - name: TINKERBELL_GRPC_AUTHORITY
+          value: 10.8.10.130:42113
+        - name: TINKERBELL_TLS
+          value: 'false'
+        - name: BOOTS_LOG_LEVEL
+          value: debug
+        - name: BOOTS_EXTRA_KERNEL_ARGS
+          value: tink_worker_image=quay.io/tinkerbell/tink-worker:v0.8.0
       hostNetwork: true
-      image: quay.io/tinkerbell/boots:v0.8.0
+      image: tinkerbell.azurecr.io/tinkerbell/boots:arm64-ipxe-dca939c
       trustedProxies: 10.0.0.0/8
     hegel:
       image: quay.io/tinkerbell/hegel:v0.10.1
       trustedProxies: 10.0.0.0/8
     rufio:
-      image: tinkerbell.azurecr.io/rufio:v0.3.1
+      image: quay.io/tinkerbell/rufio@sha256:dd51c7baa0c96f0b2d6e71d229265e013c07f8407baf7eb543196a4764c7a3b5
     stack:
       enabled: true
       hook:
         downloads:
-        - sha512sum:
-            initramfs: 3a0b1495aad0d282ec40ead1a524e63748bc9b6c17c3920929e5db2820669062dc8c89cf464b7cb2521dc9939616dee7cc0aeed69b8b0e628d2be4a4e952b644  initramfs-x86_64
-            kernel: 22d4c1d28c09e1c5612521e76181db9921fdfb3f5219d5eb07cb7dcd4637f762e36d24dcff27fca2dacbc9e64e4a84ccec1fe8055075906098fbffd81679933f  vmlinuz-x86_64
-          url: https://github.com/ader1990/hook/releases/download/tags/enable_sas_kernel_driver/hook_x86_64.tar.gz
+          - sha512sum:
+              initramfs: 3a0b1495aad0d282ec40ead1a524e63748bc9b6c17c3920929e5db2820669062dc8c89cf464b7cb2521dc9939616dee7cc0aeed69b8b0e628d2be4a4e952b644  initramfs-x86_64
+              kernel: 22d4c1d28c09e1c5612521e76181db9921fdfb3f5219d5eb07cb7dcd4637f762e36d24dcff27fca2dacbc9e64e4a84ccec1fe8055075906098fbffd81679933f  vmlinuz-x86_64
+            url: https://github.com/ader1990/hook/releases/download/tags/enable_sas_kernel_driver/hook_x86_64.tar.gz
+          - sha512sum:
+              initramfs: 3a0b1495aad0d282ec40ead1a524e63748bc9b6c17c3920929e5db2820669062dc8c89cf464b7cb2521dc9939616dee7cc0aeed69b8b0e628d2be4a4e952b644  initramfs-aarch64
+              kernel: 22d4c1d28c09e1c5612521e76181db9921fdfb3f5219d5eb07cb7dcd4637f762e36d24dcff27fca2dacbc9e64e4a84ccec1fe8055075906098fbffd81679933f  vmlinuz-aarch64
+            url: https://github.com/ader1990/hook/releases/download/hook-arm64-510-emag-usb-fix-altra/hook_rtc_scsi.tar.gz
         enabled: true
         image: alpine
         name: hook-files
         port: 8080
-      image: nginx:1.23.1
+      image: nginx:latest
       kubevip:
-        enabled: true
-        image: ghcr.io/kube-vip/kube-vip:v0.5.7
+        enabled: false
+        image: ghcr.io/kube-vip/kube-vip:v0.5.11
         imagePullPolicy: IfNotPresent
-        interface: ens2f4d1
+        interface: enP6p1s0f0np0
         name: kube-vip
         roleBindingName: kube-vip-rolebinding
         roleName: kube-vip-role
       lbClass: kube-vip.io/kube-vip-class
-      loadBalancerIP: 10.100.3.130
+      loadBalancerIP: 10.8.10.130
       name: tink-stack
       selector:
         app: tink-stack

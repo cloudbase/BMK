@@ -273,9 +273,9 @@ function prepare_variables() {
 
 function main() {
 
-  upgrade_az_cli
-  install_extensions_az_cli
-  register_azure_providers
+  # upgrade_az_cli
+  # install_extensions_az_cli
+  # register_azure_providers
 
   prepare_variables
   connect_cluster
@@ -284,9 +284,8 @@ function main() {
   create_custom_location
   create_kube_app_service
   deploy_test_container_aspnet
-  
-  deploy_test_container_mssql
-  deploy_test_app
+  # deploy_test_container_mssql
+  # deploy_test_app
 }
 
 main

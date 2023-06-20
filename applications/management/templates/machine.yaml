@@ -11,8 +11,8 @@ spec:
   destination:
     namespace: tink-system
     server: https://kubernetes.default.svc
-  project: tinkerbell
+  project: default
   source:
     path: config/management/machine
-    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
-    targetRevision: HEAD
+    repoURL: git@github.com:ader1990/u5n-k8s-docs.git
+    targetRevision: argocd-arm64-altra-flatcar-amd64hybrid

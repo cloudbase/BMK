@@ -6,8 +6,8 @@ metadata:
 spec:
   destination:
     namespace: {{ .Values.wordpress.namespace }}
-    server: https://10.100.3.140:6443
-  project: workload
+    server: https://10.8.10.151:6443
+  project: default
   syncPolicy:
     syncOptions:
       - ServerSideApply=true
