@@ -1,13 +1,13 @@
 apiVersion: bmc.tinkerbell.org/v1alpha1
 kind: Machine
 metadata:
-  name: kub-poc-cp
+  name: sut02-altra
   namespace: tink-system
 spec:
   connection:
-    host: 172.21.40.12
+    host: 10.8.0.243
     port: 623
     authSecretRef:
-      name: bm-auth
+      name: bm-auth-altra-2
       namespace: tink-system
-    insecureTLS: false
+    insecureTLS: true

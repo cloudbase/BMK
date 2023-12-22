@@ -1,0 +1,17 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: bm-auth-altra
+  namespace: tink-system
+spec:
+  encryptedData:
+    password: AgDMPyf9m93aJa8C2VOppwtfO4CiZAyR0Kmyj90MsU5qo4yC5hoThoggXqHUE5o/XIZL2cE6wrNqB8yl5uKVFK8N6STKesGvbIhwR0upDXrflPAE1dFsBJW/Jxph1txQCxOKZBxCH+Px2JyIUVhK/kH9P744ZGbsPhT4OXa6s6adOWzSUpQG7aqcgefcEYuMppLF4Olju1etb+GGRc456GxU2GLsYPoDXaLdJXCa+jRMM17U49Qw64rwHM3omFo0ggfosVSRv4Mqxsfewsv4HZhAgcWs00ooHp1UPxrTaD8BLd1abY7KrHh0nShQe+JS5W4htn4uI5Bvkc2kgG1qENAPtWI0rUShtcA7fLCGWWMGnoegH5umbMlzSmt06cso8tPoSfjvOqGJTFA0Peg5hyQyi4idpRogM/YmuwnN/+5Ydz1uv/BeGcxhgO2+Ms7E1ZreC6DCffQrtuJa7DX7g1pggQ/yeP/NltRr906dxeEqh8iI1j5lv6el80p5QhF3qzOYnNIkPam2cEv0kKlZArpQlYrxZNn89TJg/wBCiFPkUGjLJnXUtyz6EcTHsiBISJy2C/oZiKsUdw+MNZtUf8a/F2Ilb+f1hcqWhb2ptcP5ngDIsvX6tBVJA5cYNaZi3JsgBOrc/aAyIm/W7O4JYAY1futdQHZix4ysgEdj+/Pqk1/7uPEGbQ8DrafCVsTZTKDxzVZDaw==
+    username: AgB5aK0xfoYymnnJYy/mmGg1po7nD8TDpOEP6p5xX3fhV50dqRyCAGDFK+UVsI2EzPyygS+tShV15u5wgWeETn2pAUeS5AKahUv2EMIO0K7CYt4+tFlki2vm/D3/ny5+CtVK5NQ8y/y6sBAPn2359rWNobrD0Y/uJErA6sRG3i6K2Oq5gC73XoyN3ZqaygEQma9jh1m6TRVQioik2dIVA0AUBUDhTaD3qTU5E5iE8NiwcaZrnxml6a67B9bqI1RHSoXorJVk65Ly+F/tP8S1I3ASiig7yeGHSFBrcdAT3qn3dVWRG+MinDm3V2AeQyMRaP4j0mTi5oB4dDcI+R+QJSy8mHGOJWAsz0imt9wmaq0sJT3lH3lqX9EiFjUeILKEZso3NYRl0Ci1PF6I9wT72OQ6URxsay4mRD8epVUOZtV47OsXVwpzVbT0pGV/YJ4TOL9Iq0Vyf+atZAwCehA5SdQzW2tTYizp9JQYUmmUTxxrSzkzNlVJT0BfHwRyvO2C0I3/FlrykSn/I0AeILEEAc4Ulb56n5DjiWqug2dE54qO4uh99rHZ6Ic/n4+yR89C+GZQq9p3oyJBjKniLVMwis4TqrPIP096mLW+GPal6PQfZJ9Ym/XzGmKci655FNkjizh+RSvk6Jp2YLrSCTAVx7zmqJHmpOHLwqKiW24sL894gDYqKRlzbTKCXoYz1/DJLRedZJZvhA==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: bm-auth-altra
+      namespace: tink-system
+    type: kubernetes.io/basic-auth

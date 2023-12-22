@@ -2,17 +2,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: testvm
+  name: nginx
 spec:
-  syncPolicy:
-    syncOptions:
-      - ServerSideApply=true
-      - CreateNamespace=true
   destination:
-    namespace: default
+    namespace: nginx
     server: https://10.8.10.151:6443
   project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
   source:
-    path: config/workload/testvm
+    path: config/workload/nginx
     repoURL: git@github.com:cloudbase/BMK.git
     targetRevision: flatcar_sysext

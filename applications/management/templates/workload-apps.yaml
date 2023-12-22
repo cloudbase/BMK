@@ -13,8 +13,8 @@ spec:
   destination:
     namespace: argo-cd
     server: https://kubernetes.default.svc
-  project: workload
+  project: default
   source:
-    repoURL: 'https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git'
+    repoURL: 'git@github.com:cloudbase/BMK.git'
     path: applications/workload
-    targetRevision: HEAD
+    targetRevision: flatcar_sysext

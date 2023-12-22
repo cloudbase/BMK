@@ -1,0 +1,4 @@
+# docker build -t tinkerbell.azurecr.io/tinkerbell/reboot:1.0 . -f Dockerfile.reboot
+FROM busybox
+ENTRYPOINT [ "touch", "/worker/reboot" ]
+

@@ -1,11 +1,11 @@
 apiVersion: bmc.tinkerbell.org/v1alpha1
 kind: Job
 metadata:
-  name: job-power-reset-node1
+  name: job-power-reset-sut01-altra
   namespace: tink-system
 spec:
   machineRef:
-    name: kub-poc-cp
+    name: sut01-altra
     namespace: tink-system
   tasks:
     - powerAction: "off"

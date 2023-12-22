@@ -11,8 +11,8 @@ spec:
   destination:
     namespace: bird
     server: https://kubernetes.default.svc
-  project: management
+  project: default
   source:
     path: config/management/bird
-    repoURL: https://git.mgmt.kub-poc.local/gitea_admin/k8s-metal.git
-    targetRevision: HEAD
+    repoURL: git@github.com:cloudbase/BMK.git
+    targetRevision: flatcar_sysext
