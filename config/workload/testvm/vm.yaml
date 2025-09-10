@@ -1,3 +1,29 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-vm
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: general
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-vm-fast
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Block
+  storageClassName: general
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -23,18 +49,48 @@ metadata:
     special: fedora-vm
 spec:
   domain:
+    ioThreadsPolicy: shared
+    cpu:
+      cores: 16
     devices:
       disks:
       - disk:
           bus: virtio
         name: containerdisk
+        cache: none
+        dedicatedIOThread: true
       - disk:
           bus: virtio
         name: cloudinitdisk
+      - disk:
+          bus: virtio
+        name: emptydisk
+        dedicatedIOThread: true
+        cache: none
+      - disk:
+          bus: virtio
+        name: mypvcdisk
+        dedicatedIOThread: true
+        cache: none
+      - disk:
+          bus: virtio
+        name: mypvcdiskfast
+        dedicatedIOThread: true
+        cache: none
     resources:
       requests:
-        memory: 1Gi
+        memory: 4Gi
+        cpu: 16
   volumes:
+  - name: mypvcdisk
+    persistentVolumeClaim:
+      claimName: pvc-vm
+  - name: mypvcdiskfast
+    persistentVolumeClaim:
+      claimName: pvc-vm-fast
+  - emptyDisk:
+      capacity: 1Gi
+    name: emptydisk
   - name: containerdisk
     containerDisk:
       image: quay.io/kubevirt/fedora-cloud-container-disk-demo:20210811_9fec1f849

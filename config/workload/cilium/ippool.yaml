@@ -3,6 +3,6 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: lb-ippool
 spec:
-  cidrs:
+  blocks:
     - cidr: 192.168.56.144/29
   disabled: false

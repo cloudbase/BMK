@@ -4,15 +4,15 @@ wordpress:
   version: 15.2.55
   values:
     persistence:
-      storageClass: "ceph-block"
+      storageClass: "general"
     mariadb:
       primary:
         persistence:
-          storageClass: "ceph-block"
+          storageClass: "general"
 cilium:
   name: cilium-kub-poc
   namespace: kube-system
-  version: 1.15.4
+  version: 1.18.1
   values:
     l2announcements:
       enabled: true
@@ -56,7 +56,7 @@ prometheuswork:
 operator:
   name: rook-ceph-operator
   namespace: rook-ceph
-  version: 1.13.5
+  version: 1.17.7
   values:
     # Default values for rook-ceph-operator
     # This is a YAML-formatted file.
@@ -66,7 +66,7 @@ operator:
       repository: rook/ceph
       # -- Image tag
       # @default -- `master`
-      tag: v1.13.5
+      tag: v1.17.7
       # -- Image pull policy
       pullPolicy: IfNotPresent
 
@@ -691,7 +691,7 @@ cluster:
       # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
       enabled: true
       # -- Toolbox image, defaults to the image used by the Ceph cluster
-      image: quay.io/ceph/ceph:v18.2.0
+      image: quay.io/ceph/ceph:v19
       # -- Toolbox tolerations
       tolerations: []
       # -- Toolbox affinity
@@ -752,11 +752,11 @@ cluster:
         # versions running within the cluster. See tags available at https://hub.docker.com/r/ceph/ceph/tags/.
         # If you want to be more precise, you can always use a timestamp tag such quay.io/ceph/ceph:v15.2.11-20200419
         # This tag might not contain a new Ceph version, just security fixes from the underlying operating system, which will reduce vulnerabilities
-        image: quay.io/ceph/ceph:v18.2.0
+        image: quay.io/ceph/ceph:v19
         # Whether to allow unsupported versions of Ceph. Currently `pacific` and `quincy` are supported.
         # Future versions such as `reef` (v18) would require this to be set to `true`.
         # Do not set to true in production.
-        allowUnsupported: false
+        allowUnsupported: true
 
       # The path on the host where configuration files will be persisted. Must be specified.
       # Important: if you reinstall the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
@@ -830,7 +830,7 @@ cluster:
           # Requires a kernel that supports msgr v2 (kernel 5.11 or CentOS 8.4 or newer).
           requireMsgr2: false
       #   # enable host networking
-      #   provider: host
+          provider: host
       #   # EXPERIMENTAL: enable the Multus network provider
       #   provider: multus
       #   selectors:
@@ -938,22 +938,22 @@ cluster:
       resources:
         mgr:
           limits:
-            cpu: "1000m"
-            memory: "1Gi"
+            cpu: "4000m"
+            memory: "4Gi"
           requests:
             cpu: "500m"
             memory: "512Mi"
         mon:
           limits:
-            cpu: "2000m"
-            memory: "2Gi"
+            cpu: "4000m"
+            memory: "4Gi"
           requests:
             cpu: "1000m"
             memory: "1Gi"
         osd:
           limits:
-            cpu: "2000m"
-            memory: "4Gi"
+            cpu: "4000m"
+            memory: "8Gi"
           requests:
             cpu: "1000m"
             memory: "4Gi"
@@ -1010,7 +1010,7 @@ cluster:
       storage: # cluster level storage configuration and selection
         useAllNodes: true
         useAllDevices: true
-        devicePathFilter: "/dev/vdb"
+        devicePathFilter: "/dev/sdb"
         onlyApplyOSDPlacement: false
         # deviceFilter:
         # config:
@@ -1107,7 +1107,7 @@ cluster:
           # enableRBDStats: true
         storageClass:
           enabled: true
-          name: ceph-block
+          name: general
           isDefault: true
           reclaimPolicy: Delete
           allowVolumeExpansion: true
@@ -1222,7 +1222,7 @@ cluster:
     # @default -- See [RBD Snapshots](../Storage-Configuration/Ceph-CSI/ceph-csi-snapshot.md#rbd-snapshots)
     cephBlockPoolsVolumeSnapshotClass:
       enabled: true
-      name: ceph-block
+      name: general
       isDefault: true
       deletionPolicy: Delete
       annotations: {}

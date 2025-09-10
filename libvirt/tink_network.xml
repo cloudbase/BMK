@@ -1,0 +1,9 @@
+<network connections='1' ipv6='yes'>
+  <name>tink_network</name>
+  <uuid>ef5b39ca-a8a8-4b98-926b-f678903b8aaa</uuid>
+  <forward mode='route'/>
+  <bridge name='virbr3' stp='on' delay='0'/>
+  <mac address='52:54:00:ef:96:c6'/>
+  <ip address='192.168.56.1' netmask='255.255.255.0'>
+  </ip>
+</network>

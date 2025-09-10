@@ -10,8 +10,8 @@ spec:
   project: default
   source:
     path: config/management/cluster
-    repoURL: git@github.com:cloudbase/BMK.git
-    targetRevision: cncf_tm_baremetal_kvm
+    repoURL: git@github.com:ader1990/BMK.git
+    targetRevision: cncf_tm_baremetal_kvm_2025
   ignoreDifferences:
   - group: infrastructure.cluster.x-k8s.io
     kind: TinkerbellCluster

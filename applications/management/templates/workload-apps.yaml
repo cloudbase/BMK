@@ -15,6 +15,6 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    repoURL: 'git@github.com:cloudbase/BMK.git'
+    repoURL: 'git@github.com:ader1990/BMK.git'
     path: applications/workload
-    targetRevision: cncf_tm_baremetal_kvm
+    targetRevision: cncf_tm_baremetal_kvm_2025

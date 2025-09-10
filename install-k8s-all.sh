@@ -10,7 +10,7 @@ OLD_CURRENT_BRANCH="old-branch"
 export IP_SUBNET_PREFIX="192.168.56"
 export IP_BMC_SUBNET_PREFIX="192.168.56"
 
-export MANAGEMENT_VIP_NIC="ens6"
+export MANAGEMENT_VIP_NIC="enp5s0"
 export MANAGEMENT_HOST_IP="${IP_SUBNET_PREFIX}.2"
 export MANAGEMENT_HOST_IP_CIDR="${MANAGEMENT_HOST_IP}/32"
 
@@ -47,18 +47,6 @@ yq -i \
   '.ingress.values.controller.service.loadBalancerIP = strenv(MANAGEMENT_ARGOCD_IP)' \
   applications/management/values.yaml
 
-yq -i \
-  '.tinkstack.values.boots.env[3].value = strenv(MANAGEMENT_TINKERBELL_HTTP)' \
-  applications/management/values.yaml
-yq -i \
-  '.tinkstack.values.boots.env[4].value = strenv(MANAGEMENT_TINKERBELL_IP)' \
-  applications/management/values.yaml
-yq -i \
-  '.tinkstack.values.boots.env[5].value = strenv(MANAGEMENT_TINKERBELL_IP)' \
-  applications/management/values.yaml
-yq -i \
-  '.tinkstack.values.boots.env[7].value = strenv(MANAGEMENT_TINKERBELL_GRPC)' \
-  applications/management/values.yaml
 yq -i \
   '.tinkstack.values.stack.loadBalancerIP = strenv(MANAGEMENT_TINKERBELL_IP)' \
   applications/management/values.yaml
@@ -118,7 +106,7 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
   -f config/management/ingress-nginx/values.yaml -v 6
 until kubectl wait deployment -n ingress-nginx ingress-nginx-controller --for condition=Available=True --timeout=90s; do sleep 1; done
 
-helm upgrade --install kube-vip kube-vip/kube-vip \
+helm upgrade --install kube-vip kube-vip/kube-vip --version 0.5.0 \
   --namespace kube-vip --create-namespace \
   -f config/management/ingress-nginx/kube-vip-values.yaml -v 6
 
@@ -136,11 +124,11 @@ until argocd repo list || argocd login argo-cd-virtual.mgmt.kub-poc.local --user
 
 until argocd repo list; do sleep 1; done
 
-until argocd repo add git@github.com:cloudbase/bmk.git \
+until argocd repo add git@github.com:ader1990/bmk.git \
     --ssh-private-key-path ~/.ssh/for-u5; do sleep 1; done
 
 until argocd app sync management-apps || argocd app create management-apps \
-    --repo git@github.com:cloudbase/bmk.git \
+    --repo git@github.com:ader1990/bmk.git \
     --path applications/management --dest-namespace argo-cd \
     --dest-server https://kubernetes.default.svc \
     --revision "${CURRENT_BRANCH}" --sync-policy automated; do sleep 1; done
@@ -195,7 +183,7 @@ until argocd cluster add kub-poc-admin@kub-poc \
    --insecure --yes; do sleep 1; done
 
 argocd app create workload-cluster-apps \
-    --repo git@github.com:cloudbase/bmk.git \
+    --repo git@github.com:ader1990/bmk.git \
     --path applications/workload --dest-namespace argo-cd \
     --dest-server https://kubernetes.default.svc \
     --revision "${CURRENT_BRANCH}" --sync-policy automated
@@ -246,7 +234,9 @@ until argocd app sync ceph-classes; do sleep 5; done
 
 until argocd app sync rook-ceph-cluster; do sleep 5; done
 
-until kubectl  --kubeconfig ~/kub-poc.kubeconfig -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status; do sleep 1; done
+sleep 30
+
+until kubectl  --kubeconfig ~/kub-poc.kubeconfig -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status; do sleep 10; done
 
 # verify ceph pvc
 argocd app sync wordpress --force --prune
@@ -264,14 +254,23 @@ until kubectl --kubeconfig ~/kub-poc.kubeconfig wait deployment -n kubevirt virt
 
 until KUBECONFIG=~/kub-poc.kubeconfig kubectl node-shell vm01 -- sh -c "echo 'fs.inotify.max_user_watches=1048576' >> /etc/sysctl.conf && echo 'fs.inotify.max_user_instances=512' >> /etc/sysctl.conf && sysctl -p /etc/sysctl.conf"; do sleep 1; done
 
-argocd app sync testvm --force --prune || argocd app sync testvm --force --prune
+until kubectl --kubeconfig ~/kub-poc.kubeconfig get node vm02; do sleep 1; done
+until kubectl --kubeconfig ~/kub-poc.kubeconfig get node vm03; do sleep 1; done
 
-until kubectl --kubeconfig ~/kub-poc.kubeconfig wait virtualmachineinstance/fedora-public-ip --for condition=Ready --timeout=90s; do sleep 1; done
+kubectl --kubeconfig ~/kub-poc.kubeconfig patch node vm02 -p '{"spec":{"taints":[]}}' || true
+kubectl --kubeconfig ~/kub-poc.kubeconfig patch node vm03 -p '{"spec":{"taints":[]}}' || true
 
-until (curl --connect-timeout 5 --fail-with-body $(kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/wordpress -n wordpress -o yaml | yq .status.loadBalancer.ingress[0].ip)); do sleep 1; done;
+until KUBECONFIG=~/kub-poc.kubeconfig kubectl node-shell vm02 -- sh -c "echo 'fs.inotify.max_user_watches=1048576' >> /etc/sysctl.conf && echo 'fs.inotify.max_user_instances=512' >> /etc/sysctl.conf && sysctl -p /etc/sysctl.conf"; do sleep 1; done
+until KUBECONFIG=~/kub-poc.kubeconfig kubectl node-shell vm03 -- sh -c "echo 'fs.inotify.max_user_watches=1048576' >> /etc/sysctl.conf && echo 'fs.inotify.max_user_instances=512' >> /etc/sysctl.conf && sysctl -p /etc/sysctl.conf"; do sleep 1; done
 
-until kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/fedora-public-ip -o yaml | yq .status.loadBalancer.ingress[0].ip;  do sleep 1; done
+until argocd app sync testvm --force --prune; do sleep 1; done;
 
-until nc -w5 -z -v $(kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/fedora-public-ip -o yaml | yq .status.loadBalancer.ingress[0].ip) 22; do sleep 1; done;
+# until kubectl --kubeconfig ~/kub-poc.kubeconfig wait virtualmachineinstance/fedora-public-ip --for condition=Ready --timeout=90s; do sleep 1; done
 
 until curl --connect-timeout 5 --fail-with-body $(kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/nginx -n nginx -o yaml | yq .status.loadBalancer.ingress[0].ip); do sleep 1; done
+until (curl --connect-timeout 5 --fail-with-body $(kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/wordpress -n wordpress -o yaml | yq .status.loadBalancer.ingress[0].ip)); do sleep 1; done;
+
+# until kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/fedora-public-ip -o yaml | yq .status.loadBalancer.ingress[0].ip;  do sleep 1; done
+# until nc -w5 -z -v $(kubectl --kubeconfig ~/kub-poc.kubeconfig get svc/fedora-public-ip -o yaml | yq .status.loadBalancer.ingress[0].ip) 22; do sleep 1; done;
+
+

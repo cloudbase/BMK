@@ -6,8 +6,10 @@ metadata:
 spec:
   connection:
     host: 192.168.56.1
-    port: 624
     authSecretRef:
       name: bm-auth-altra
       namespace: tink-system
     insecureTLS: true
+    providerOptions:
+      ipmitool:
+        port: 624

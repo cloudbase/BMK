@@ -9,26 +9,40 @@ spec:
     ignition:
       containerLinuxConfig:
         additionalConfig: |
+          networkd:
+            units:
+              - name: 03-bridges.network
+                contents: |
+                  [Match]
+                  Name=eth1 br-int br-tun br-ex ovs-system
+                  [Link]
+                  Unmanaged=yes
+              - name: 04-tunnels.network
+                contents: |
+                  [Match]
+                  Kind=tun tap
+                  [Link]
+                  Unmanaged=yes
           storage:
             links:
               - path: /etc/extensions/kubernetes.raw
                 hard: false
-                target: /opt/extensions/kubernetes/kubernetes-v1.30.0-x86-64.raw
+                target: /opt/extensions/kubernetes/kubernetes-v1.31.12-x86-64.raw
             files:
-              - path: /etc/sysupdate.kubernetes.d/kubernetes-v1.30.conf
+              - path: /etc/sysupdate.kubernetes.d/kubernetes-v1.31.conf
                 mode: 0644
                 contents:
                   remote:
-                    url: https://github.com/flatcar/sysext-bakery/releases/download/latest/kubernetes-v1.30.conf
+                    url: https://extensions.flatcar.org/extensions/kubernetes/kubernetes-v1.31.conf
               - path: /etc/sysupdate.d/noop.conf
                 mode: 0644
                 contents:
                   remote:
-                    url: https://github.com/flatcar/sysext-bakery/releases/download/latest/noop.conf
-              - path: /opt/extensions/kubernetes/kubernetes-v1.30.0-x86-64.raw
+                    url: https://extensions.flatcar.org/extensions/noop.conf
+              - path: /opt/extensions/kubernetes/kubernetes-v1.31.12-x86-64.raw
                 contents:
                   remote:
-                    url: https://github.com/flatcar/sysext-bakery/releases/download/latest/kubernetes-v1.30.0-x86-64.raw
+                    url: https://extensions.flatcar.org/extensions/kubernetes-v1.31.12-x86-64.raw
           systemd:
             units:
               - name: systemd-sysupdate.service
@@ -58,6 +72,33 @@ spec:
                       [Unit]
                       Requires=containerd.service
                       After=containerd.service
+              - name: devkvm777.service
+                enabled: true
+                contents: |
+                  [Unit]
+                  Description=Ensure dev-kvm is writeable
+                  After=containerd.service
+
+                  [Service]
+                  ExecStart=/usr/sbin/chmod 777 /dev/kvm
+                  Restart=always
+                  RestartSec=10
+
+                  [Install]
+                  WantedBy=multi-user.target
+              - name: devkvm777.timer
+                enabled: true
+                contents: |
+                  [Unit]
+                  Description=Timer for how often to run dev-kvm chmod 777
+
+                  [Timer]
+                  OnUnitActiveSec=10s
+                  OnBootSec=10s
+
+                  [Install]
+                  WantedBy=timers.target
+            
     clusterConfiguration: {}
     initConfiguration:
       nodeRegistration:
@@ -70,7 +111,7 @@ spec:
         kubeletExtraArgs:
           provider-id: PROVIDER_ID
     preKubeadmCommands:
-      - "until ping cloudbase.it -c 2 -t 100; do sleep 1; done && mkdir -p /etc/kubernetes/manifests && ctr images pull ghcr.io/kube-vip/kube-vip:v0.7.2 && ctr run --rm --net-host ghcr.io/kube-vip/kube-vip:v0.7.2 vip /kube-vip manifest pod --arp --interface $(ip -4 -j route list default | jq -r .[0].dev) --address 192.168.56.151 --controlplane --leaderElection > /etc/kubernetes/manifests/kube-vip.yaml"
+      - "until ping cloudbase.it -c 2 -t 100; do sleep 1; done && mkdir -p /etc/kubernetes/manifests && ctr images pull ghcr.io/kube-vip/kube-vip:v1.0.0 && ctr run --rm --net-host ghcr.io/kube-vip/kube-vip:v1.0.0 vip /kube-vip manifest pod --arp --interface $(ip -4 -j route list default | jq -r .[0].dev) --address 192.168.56.151 --controlplane --leaderElection > /etc/kubernetes/manifests/kube-vip.yaml"
       - "sed -i 's#path: /etc/kubernetes/admin.conf#path: /etc/kubernetes/super-admin.conf#' /etc/kubernetes/manifests/kube-vip.yaml"
     postKubeadmCommands:
       - "sed -i 's#path: /etc/kubernetes/super-admin.conf#path: /etc/kubernetes/admin.conf#' /etc/kubernetes/manifests/kube-vip.yaml"
@@ -79,8 +120,8 @@ spec:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: TinkerbellMachineTemplate
       name: kub-poc-control-plane
-  replicas: 1
-  version: v1.30.0
+  replicas: 3
+  version: v1.31.12
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: TinkerbellMachineTemplate
@@ -108,13 +149,13 @@ spec:
                 timeout: 600
                 environment:
                   IMG_URL: http://192.168.56.1/flatcar_production_image.bin.bzip2
-                  DEST_DISK: /dev/vda
+                  DEST_DISK: /dev/sda
                   COMPRESSED: true
               - name: "change-kernel-configuration"
                 image: quay.io/tinkerbell-actions/writefile:v1.0.0
                 timeout: 90
                 environment:
-                  DEST_DISK: /dev/vda6
+                  DEST_DISK: /dev/sda6
                   FS_TYPE: btrfs
                   DEST_PATH: /grub.cfg
                   UID: 0

@@ -13,5 +13,5 @@ spec:
       - CreateNamespace=true
   source:
     path: config/workload/nginx
-    repoURL: git@github.com:cloudbase/BMK.git
-    targetRevision: cncf_tm_baremetal_kvm
+    repoURL: git@github.com:ader1990/BMK.git
+    targetRevision: cncf_tm_baremetal_kvm_2025
